@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "162014553308",
+    "project_id": "gps-track-123",
+    "storage_bucket": "gps-track-123.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162014553308:android:d206bd61d647c614a20019",
+        "android_client_info": {
+          "package_name": "com.sanata.gpstrack.gps_track"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "162014553308-ho984g660hmpjrur53c8ese9thvh9ji1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sanata.gpstrack.gps_track",
+            "certificate_hash": "08284361b5d5369acc057f00bd7f1208f2c07edc"
+          }
+        },
+        {
+          "client_id": "162014553308-fbf625umq9iok34861c5r31b0go8509n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC9bLLmXcCzcoq0bJ8gSrshNVAesS29KI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "162014553308-fbf625umq9iok34861c5r31b0go8509n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
