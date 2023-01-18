@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:ui' as ui;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,6 +15,9 @@ class MapSetupController extends GetxController {
       LatLng(-8.642612058029062, 115.20457939080391).obs;
   late StreamSubscription positionStream;
   late GoogleMapController mapController;
+
+  late BitmapDescriptor customIcon;
+  late Uint8List markerIcon;
 
   Map<String, Marker> markers = {};
   RxDouble lat = 0.0.obs;
@@ -27,7 +33,9 @@ class MapSetupController extends GetxController {
     _determinePosition();
     // getLocation();
     // updateLocation();
+    iconMarker();
     timer = Timer.periodic(Duration(seconds: 2), (Timer t) => getLocation());
+
     super.onInit();
   }
 
@@ -106,14 +114,28 @@ class MapSetupController extends GetxController {
     refresh();
   }
 
-  addMarker(String id, LatLng location) {
+  addMarker(String id, LatLng location) async {
     mark.add(
       Marker(
         markerId: MarkerId(id),
         position: location,
-        // icon: markerbitmap2,
+        icon: BitmapDescriptor.fromBytes(markerIcon),
       ),
     );
+  }
+
+  iconMarker() async {
+    markerIcon = await getBytesFromAsset('assets/fd.png', 100);
+  }
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
   }
 
   @override
