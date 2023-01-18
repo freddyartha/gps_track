@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:workmanager/workmanager.dart';
 
+import '../../map_setup/controllers/map_setup_controller.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -14,16 +18,61 @@ class HomeView extends GetView<HomeController> {
         centerTitle: true,
       ),
       body: Center(
-        child: Container(
-          height: 80,
-          margin: const EdgeInsets.only(left: 10, right: 10),
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: (){controller.lihatMap();}, 
-            child: const Text("Lihat Map")
-      ),
+        child: Column(
+          children: [
+            Container(
+              height: 80,
+              margin: const EdgeInsets.only(left: 10, right: 10),
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: () {
+                    controller.lihatMap();
+                  },
+                  child: const Text("Lihat Map")),
+            ),
+            // ElevatedButton(
+            //   child: Text("Start the Flutter background service"),
+            //   onPressed: () {
+            //     Workmanager().initialize(
+            //       callbackDispatcher,
+            //       isInDebugMode: true,
+            //     );
+            //   },
+            // ),
+            // ElevatedButton(
+            //     child: Text("Register Periodic Task (Android)"),
+            //     onPressed: Platform.isAndroid
+            //         ? () {
+            //             Workmanager().registerPeriodicTask(
+            //               simplePeriodicTask,
+            //               simplePeriodicTask,
+            //               initialDelay: Duration(seconds: 10),
+            //             );
+            //           }
+            //         : null),
+            // ElevatedButton(
+            //   child: Text("Cancel All"),
+            //   onPressed: () async {
+            //     await Workmanager().cancelAll();
+            //     print('Cancel all tasks completed');
+            //   },
+            // ),
+            ElevatedButton(
+              child: Text("Stream Location"),
+              onPressed: () {
+                MapSetupController().updateLocation();
+              },
+            ),
+
+            ElevatedButton(
+              child: Text("Stop Location"),
+              onPressed: () {
+                MapSetupController().stopLocation();
+              },
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }

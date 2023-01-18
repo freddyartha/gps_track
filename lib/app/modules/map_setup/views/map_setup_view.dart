@@ -14,27 +14,18 @@ class MapSetupView extends GetView<MapSetupController> {
         title: const Text('GPS Trakcer'),
         centerTitle: true,
       ),
-      body: Obx((() => GoogleMap(
+      body: Obx(() => controller.isLoad.value == false
+          ? Center(child: CircularProgressIndicator())
+          : GoogleMap(
               initialCameraPosition: CameraPosition(
-                  target: controller.sourceLocation.value, zoom: 14.5),
-              markers: {
-                Marker(
-                    markerId: const MarkerId("start"),
-                    position: controller.sourceLocation.value)
+                target: controller.sourceLocation.value,
+                zoom: 16,
+              ),
+              onMapCreated: (con) {
+                controller.mapController = con;
               },
+              markers: controller.mark,
             )),
-      ),
-
-      // GoogleMap(
-      //   initialCameraPosition:
-      //       CameraPosition(target: controller.sourceLocation.value, zoom: 14.5),
-      //   markers: {
-      //     Marker(
-      //       markerId: const MarkerId("start"),
-      //       position: controller.sourceLocation.value
-      //     )
-      //   },
-      // ),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,14 +8,26 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapSetupController extends GetxController {
   late Position position;
-  final Rx<LatLng> sourceLocation = const LatLng(-8, 115).obs;
-  late StreamSubscription<Position> positionStream;
+  final Rx<LatLng> sourceLocation =
+      LatLng(-8.642612058029062, 115.20457939080391).obs;
+  late StreamSubscription positionStream;
+  late GoogleMapController mapController;
+
+  Map<String, Marker> markers = {};
+  RxDouble lat = 0.0.obs;
+  RxDouble long = 0.0.obs;
+  RxBool isLoad = false.obs;
+
+  final mark = <Marker>{}.obs;
+  final cam = <CameraPosition>{}.obs;
+  Timer? timer;
 
   @override
   void onInit() {
     _determinePosition();
-    getLocation();
-    updateLocation();
+    // getLocation();
+    // updateLocation();
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) => getLocation());
     super.onInit();
   }
 
@@ -48,55 +60,65 @@ class MapSetupController extends GetxController {
     return position;
   }
 
-  // positionStream = Geolocator.getPositionStream(
-  //         locationSettings:
-  //             const LocationSettings(accuracy: LocationAccuracy.best))
-  //     .listen((Position? position) {
-  //   print(position == null
-  //       ? 'Unknown'
-  //       : '${position.latitude.toString()}, ${position.longitude.toString()}');
-  // });
   updateLocation() {
-    positionStream = Geolocator.getPositionStream(locationSettings:
+    positionStream = Geolocator.getPositionStream(
+            locationSettings:
                 const LocationSettings(accuracy: LocationAccuracy.best))
         .listen((Position? position) {
-      print(position == null
-          ? 'Unknown'
-          : '${position.latitude.toString()}, ${position.longitude.toString()}');
-          postData();
+      lat.value = position!.latitude;
+      long.value = position.longitude;
+
+      postData();
     });
   }
-  postData() async {
-    final postData = FirebaseFirestore.instance.collection('live_location').doc('freddy_location');
-    final jsonData = {
-      'latlong': [position.latitude, position.longitude],
-    };
-    await postData
-        .update(jsonData)
-        .then((value) => print("upadate latlong berhasil!"))
-        .catchError(
-            (error) => print("update location : $error"));
+
+  stopLocation() {
+    positionStream.cancel();
   }
 
-  getLocation()async {
-    // Stream getData = FirebaseFirestore.instance.collection('live_location').doc('gilang_location').snapshots();
-    // // sourceLocation.value = 
-    
-    // var test = jsonEncode(getData);
-    // // print('Source Location : ${sourceLocation.toString()}');
-    // print('Get Data : ${test.toString()}');
+  void refresh() async {
+    isLoad.value = false;
+    isLoad.value = true;
+  }
 
-    final docRef = FirebaseFirestore.instance.collection('live_location').doc('gilang_location');
-    docRef.get().then(
-      (DocumentSnapshot doc) {
-        GeoPoint data = doc.data() as GeoPoint;
-        // double lat = data.ge;
-        // double lng = data.getLongitude();
-        // LatLng latLng = new LatLng(lat, lng);
-        print('Get Data : ${data.toString()}');
-        // ...
-      },
-      onError: (e) => print("Error getting document: $e"),
+  postData() async {
+    // print("${lat} , ${long}");
+    final postData = FirebaseFirestore.instance
+        .collection('live_location')
+        .doc('freddy_location');
+    final jsonData = {
+      'lat': lat.value,
+      'long': long.value,
+    };
+    await postData.update(jsonData);
+  }
+
+  getLocation() async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection("live_location")
+        .doc("freddy_location")
+        .get();
+    var lat = documentSnapshot['lat'];
+    var long = documentSnapshot['long'];
+    sourceLocation.value = LatLng(lat, long);
+    log(sourceLocation.value.toString());
+    addMarker("1", sourceLocation.value);
+    refresh();
+  }
+
+  addMarker(String id, LatLng location) {
+    mark.add(
+      Marker(
+        markerId: MarkerId(id),
+        position: location,
+        // icon: markerbitmap2,
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 }
