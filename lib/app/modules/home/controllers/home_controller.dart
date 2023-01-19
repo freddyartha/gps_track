@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:gps_track/app/routes/app_pages.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:location/location.dart' as loc;
 
 class HomeController extends GetxController with WidgetsBindingObserver {
   late Position position;
@@ -15,10 +17,16 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   RxDouble long = 0.0.obs;
   late StreamSubscription positionStream;
 
+  final loc.Location location = loc.Location();
+  StreamSubscription<loc.LocationData>? _locationSubscription;
+
   @override
   void onInit() {
     _determinePosition();
-    WidgetsBinding.instance.addObserver(this);
+    // WidgetsBinding.instance.addObserver(this);
+    requestPermission();
+    location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
+    enableBackgroundMode();
     super.onInit();
   }
 
@@ -105,5 +113,55 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
   stopLocation() {
     positionStream.cancel();
+  }
+
+  Future<void> listenLocation() async {
+    _locationSubscription = location.onLocationChanged.handleError((onError) {
+      print(onError);
+      _locationSubscription?.cancel();
+
+      _locationSubscription = null;
+    }).listen((loc.LocationData currentlocation) async {
+      lat.value = currentlocation.latitude!;
+      long.value = currentlocation.longitude!;
+      postData();
+    });
+  }
+
+  stopListening() {
+    _locationSubscription?.cancel();
+
+    _locationSubscription = null;
+  }
+
+  requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      print('done');
+    } else if (status.isDenied) {
+      requestPermission();
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+  Future<bool> enableBackgroundMode() async {
+    bool _bgModeEnabled = await location.isBackgroundModeEnabled();
+    if (_bgModeEnabled) {
+      return true;
+    } else {
+      try {
+        await location.enableBackgroundMode();
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+      try {
+        _bgModeEnabled = await location.enableBackgroundMode();
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+      print(_bgModeEnabled); //True!
+      return _bgModeEnabled;
+    }
   }
 }

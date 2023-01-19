@@ -54,14 +54,14 @@ class HomeView extends GetView<HomeController> {
             ElevatedButton(
               child: const Text("Stream Location"),
               onPressed: () {
-                controller.updateLocation();
+                controller.listenLocation();
               },
             ),
 
             ElevatedButton(
               child: const Text("Stop Location"),
               onPressed: () {
-                controller.stopLocation();
+                controller.stopListening();
               },
             ),
           ],
