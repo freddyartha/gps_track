@@ -94,6 +94,14 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
   }
 
   addMarker(String id, LatLng location) async {
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(location.latitude, location.longitude),
+          zoom: 16,
+        ),
+      ),
+    );
     mark.add(
       Marker(
         markerId: MarkerId(id),
