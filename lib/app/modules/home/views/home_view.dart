@@ -1,11 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-import 'package:workmanager/workmanager.dart';
-
-import '../../map_setup/controllers/map_setup_controller.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -58,16 +52,16 @@ class HomeView extends GetView<HomeController> {
             //   },
             // ),
             ElevatedButton(
-              child: Text("Stream Location"),
+              child: const Text("Stream Location"),
               onPressed: () {
-                MapSetupController().updateLocation();
+                controller.updateLocation();
               },
             ),
 
             ElevatedButton(
-              child: Text("Stop Location"),
+              child: const Text("Stop Location"),
               onPressed: () {
-                MapSetupController().stopLocation();
+                controller.stopLocation();
               },
             ),
           ],

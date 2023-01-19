@@ -15,7 +15,7 @@ class MapSetupView extends GetView<MapSetupController> {
         centerTitle: true,
       ),
       body: Obx(() => controller.isLoad.value == false
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: controller.sourceLocation.value,

@@ -9,11 +9,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MapSetupController extends GetxController {
+class MapSetupController extends GetxController with WidgetsBindingObserver {
   late Position position;
   final Rx<LatLng> sourceLocation =
-      LatLng(-8.642612058029062, 115.20457939080391).obs;
-  late StreamSubscription positionStream;
+      const LatLng(-8.642612058029062, 115.20457939080391).obs;
   late GoogleMapController mapController;
 
   late BitmapDescriptor customIcon;
@@ -31,12 +30,20 @@ class MapSetupController extends GetxController {
   @override
   void onInit() {
     _determinePosition();
+    WidgetsBinding.instance.addObserver(this);
     // getLocation();
     // updateLocation();
     iconMarker();
-    timer = Timer.periodic(Duration(seconds: 2), (Timer t) => getLocation());
+    timer =
+        Timer.periodic(const Duration(seconds: 2), (Timer t) => getLocation());
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    timer!.cancel();
   }
 
   Future<Position> _determinePosition() async {
@@ -64,41 +71,13 @@ class MapSetupController extends GetxController {
 
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    // sourceLocation.value = LatLng(position.latitude, position.longitude);
     return position;
   }
 
-  updateLocation() {
-    positionStream = Geolocator.getPositionStream(
-            locationSettings:
-                const LocationSettings(accuracy: LocationAccuracy.best))
-        .listen((Position? position) {
-      lat.value = position!.latitude;
-      long.value = position.longitude;
-
-      postData();
-    });
-  }
-
-  stopLocation() {
-    positionStream.cancel();
-  }
-
+  @override
   void refresh() async {
     isLoad.value = false;
     isLoad.value = true;
-  }
-
-  postData() async {
-    // print("${lat} , ${long}");
-    final postData = FirebaseFirestore.instance
-        .collection('live_location')
-        .doc('freddy_location');
-    final jsonData = {
-      'lat': lat.value,
-      'long': long.value,
-    };
-    await postData.update(jsonData);
   }
 
   getLocation() async {
@@ -139,8 +118,24 @@ class MapSetupController extends GetxController {
   }
 
   @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        timer = Timer.periodic(
+            const Duration(seconds: 2), (Timer t) => getLocation());
+        break;
+      case AppLifecycleState.inactive:
+        timer = Timer.periodic(
+            const Duration(seconds: 2), (Timer t) => getLocation());
+        break;
+      case AppLifecycleState.paused:
+        timer = Timer.periodic(
+            const Duration(seconds: 2), (Timer t) => getLocation());
+        break;
+      case AppLifecycleState.detached:
+        timer = Timer.periodic(
+            const Duration(seconds: 2), (Timer t) => getLocation());
+        break;
+    }
   }
 }
