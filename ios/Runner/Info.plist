@@ -53,6 +53,8 @@
 	<string>This application requires GPS to track staff attendance</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This application requires GPS to track staff attendance</string>
+	<key>UIBackgroundModes</key>
+	<string>location</string>
 	
 </dict>
 </plist>

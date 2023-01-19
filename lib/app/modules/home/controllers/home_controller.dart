@@ -22,7 +22,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
   @override
   void onInit() {
-    _determinePosition();
     // WidgetsBinding.instance.addObserver(this);
     requestPermission();
     location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
@@ -83,34 +82,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     log("update : $lat , $long");
   }
 
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    return position;
-  }
-
   stopLocation() {
     positionStream.cancel();
   }
@@ -119,7 +90,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     _locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
       _locationSubscription?.cancel();
-
       _locationSubscription = null;
     }).listen((loc.LocationData currentlocation) async {
       lat.value = currentlocation.latitude!;
@@ -137,7 +107,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   requestPermission() async {
     var status = await Permission.location.request();
     if (status.isGranted) {
-      print('done');
     } else if (status.isDenied) {
       requestPermission();
     } else if (status.isPermanentlyDenied) {
@@ -146,8 +115,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<bool> enableBackgroundMode() async {
-    bool _bgModeEnabled = await location.isBackgroundModeEnabled();
-    if (_bgModeEnabled) {
+    bool bgModeEnabled = await location.isBackgroundModeEnabled();
+    if (bgModeEnabled) {
       return true;
     } else {
       try {
@@ -156,12 +125,12 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         debugPrint(e.toString());
       }
       try {
-        _bgModeEnabled = await location.enableBackgroundMode();
+        bgModeEnabled = await location.enableBackgroundMode();
       } catch (e) {
         debugPrint(e.toString());
       }
-      print(_bgModeEnabled); //True!
-      return _bgModeEnabled;
+      // print(_bgModeEnabled); //True!
+      return bgModeEnabled;
     }
   }
 }

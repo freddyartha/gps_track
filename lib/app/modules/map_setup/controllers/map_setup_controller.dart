@@ -5,12 +5,12 @@ import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:location/location.dart' as loc;
 
 class MapSetupController extends GetxController with WidgetsBindingObserver {
-  late Position position;
   final Rx<LatLng> sourceLocation =
       const LatLng(-8.642612058029062, 115.20457939080391).obs;
   late GoogleMapController mapController;
@@ -27,13 +27,16 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
   final cam = <CameraPosition>{}.obs;
   Timer? timer;
 
+
+  //location
+  loc.Location location = loc.Location();
+
   @override
   void onInit() {
-    _determinePosition();
-    WidgetsBinding.instance.addObserver(this);
-    // getLocation();
-    // updateLocation();
+    requestPermission();
     iconMarker();
+    location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
+    enableBackgroundMode();
     timer =
         Timer.periodic(const Duration(seconds: 2), (Timer t) => getLocation());
 
@@ -42,37 +45,49 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
 
   @override
   void onClose() {
-    WidgetsBinding.instance.removeObserver(this);
     timer!.cancel();
   }
 
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+  Future<bool> enableBackgroundMode() async {
+    bool bgModeEnabled = await location.isBackgroundModeEnabled();
+    if (bgModeEnabled) {
+      return true;
+    } else {
+      try {
+        await location.enableBackgroundMode();
+      } catch (e) {
+        debugPrint(e.toString());
       }
+      try {
+        bgModeEnabled = await location.enableBackgroundMode();
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+      // print(_bgModeEnabled); //True!
+      return bgModeEnabled;
     }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    return position;
   }
+
+  requestPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+    } else if (status.isDenied) {
+      requestPermission();
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+  // Future<void> updateLocation() async {
+  //   _locationSubscription = location.onLocationChanged.handleError((onError) {
+  //     print(onError);
+  //     _locationSubscription.cancel();
+  //       print("terjadi kesalahan");
+  //   }).listen((LocationData currentlocation) async {
+  //     postData();
+  //   });
+  // } 
+    
 
   @override
   void refresh() async {
