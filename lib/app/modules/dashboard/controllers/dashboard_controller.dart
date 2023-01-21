@@ -5,27 +5,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../routes/app_pages.dart';
 
 class DashboardController extends GetxController {
-  //TODO: Implement DashboardController
-
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {}
-  void increment() => count.value++;
-
   void qrScan() {
     Get.bottomSheet(Container(
       height: 500,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(40),
@@ -39,7 +22,7 @@ class DashboardController extends GetxController {
             child: Container(
               height: 5,
               width: 100,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.grey,
                 borderRadius: BorderRadius.all(Radius.circular(5)),
               ),
@@ -52,7 +35,7 @@ class DashboardController extends GetxController {
               child: Column(
                 children: [
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                     ),
                     height: 300,

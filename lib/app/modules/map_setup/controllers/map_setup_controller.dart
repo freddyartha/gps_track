@@ -13,7 +13,7 @@ import 'package:location/location.dart' as loc;
 class MapSetupController extends GetxController with WidgetsBindingObserver {
   final Rx<LatLng> sourceLocation =
       const LatLng(-8.642612058029062, 115.20457939080391).obs;
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   late BitmapDescriptor customIcon;
   late Uint8List markerIcon;
@@ -27,7 +27,6 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
   final cam = <CameraPosition>{}.obs;
   Timer? timer;
 
-
   //location
   loc.Location location = loc.Location();
 
@@ -36,36 +35,14 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
     requestPermission();
     iconMarker();
     location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
-    enableBackgroundMode();
     timer =
         Timer.periodic(const Duration(seconds: 2), (Timer t) => getLocation());
-
     super.onInit();
   }
 
   @override
   void onClose() {
     timer!.cancel();
-  }
-
-  Future<bool> enableBackgroundMode() async {
-    bool bgModeEnabled = await location.isBackgroundModeEnabled();
-    if (bgModeEnabled) {
-      return true;
-    } else {
-      try {
-        await location.enableBackgroundMode();
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-      try {
-        bgModeEnabled = await location.enableBackgroundMode();
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-      // print(_bgModeEnabled); //True!
-      return bgModeEnabled;
-    }
   }
 
   requestPermission() async {
@@ -77,17 +54,6 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
       openAppSettings();
     }
   }
-
-  // Future<void> updateLocation() async {
-  //   _locationSubscription = location.onLocationChanged.handleError((onError) {
-  //     print(onError);
-  //     _locationSubscription.cancel();
-  //       print("terjadi kesalahan");
-  //   }).listen((LocationData currentlocation) async {
-  //     postData();
-  //   });
-  // } 
-    
 
   @override
   void refresh() async {
@@ -109,7 +75,7 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
   }
 
   addMarker(String id, LatLng location) async {
-    mapController.animateCamera(
+    mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(location.latitude, location.longitude),
@@ -138,27 +104,5 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
     return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
         .buffer
         .asUint8List();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        timer = Timer.periodic(
-            const Duration(seconds: 2), (Timer t) => getLocation());
-        break;
-      case AppLifecycleState.inactive:
-        timer = Timer.periodic(
-            const Duration(seconds: 2), (Timer t) => getLocation());
-        break;
-      case AppLifecycleState.paused:
-        timer = Timer.periodic(
-            const Duration(seconds: 2), (Timer t) => getLocation());
-        break;
-      case AppLifecycleState.detached:
-        timer = Timer.periodic(
-            const Duration(seconds: 2), (Timer t) => getLocation());
-        break;
-    }
   }
 }

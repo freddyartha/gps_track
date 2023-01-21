@@ -5,11 +5,13 @@ import 'package:get/get.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
+  const DashboardView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DashboardView'),
+        title: const Text('DashboardView'),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
@@ -18,10 +20,10 @@ class DashboardView extends GetView<DashboardController> {
           //code to execute on button press
           controller.qrScan();
         },
-        child: Icon(Icons.qr_code_scanner_rounded), //icon inside button
+        child: const Icon(Icons.qr_code_scanner_rounded), //icon inside button
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: Center(
+      body: const Center(
         child: Text(
           'DashboardView is working',
           style: TextStyle(fontSize: 20),
@@ -30,7 +32,7 @@ class DashboardView extends GetView<DashboardController> {
       bottomNavigationBar: BottomAppBar(
         //bottom navigation bar on scaffold
         color: Colors.redAccent,
-        shape: CircularNotchedRectangle(), //shape of notch
+        shape: const CircularNotchedRectangle(), //shape of notch
         notchMargin:
             5, //notche margin between floating button and bottom appbar
         child: Row(
@@ -39,18 +41,18 @@ class DashboardView extends GetView<DashboardController> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.search,
                 color: Colors.white,
               ),
               onPressed: () {},
             ),
-            Container(
+            const SizedBox(
               height: 0,
               width: 0,
             ),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.menu,
                 color: Colors.white,
               ),
