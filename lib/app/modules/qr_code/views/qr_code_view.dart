@@ -19,19 +19,6 @@ class QrCodeView extends GetView<QrCodeController> {
           child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // RepaintBoundary(
-          //   key: controller.screenShotKey,
-          //   child: QrImage(
-          //     data: controller.dataString,
-          //     version: QrVersions.auto,
-          //     size: MediaQuery.of(context).size.width * 0.8,
-          //     gapless: false,
-          //     embeddedImage: const AssetImage('assets/fd.png'),
-          //     embeddedImageStyle: QrEmbeddedImageStyle(
-          //       size: const Size(80, 80),
-          //     ),
-          //   ),
-          // ),
           Screenshot(
               controller: controller.screenshotController,
               child: Container(
@@ -73,7 +60,7 @@ class QrCodeView extends GetView<QrCodeController> {
                                 height: 20,
                               ),
                               Text(
-                                "Ambulance Nomor 000",
+                                "Ambulance Nomor 0001",
                                 textAlign: TextAlign.center,
                               )
                             ])
@@ -99,7 +86,7 @@ class QrCodeView extends GetView<QrCodeController> {
                             onPressed: () {
                               controller.saveCode();
                             },
-                            child: const Text("Download")),
+                            child: const Text("Save to Gallery")),
                       ),
                       Container(
                         margin: const EdgeInsets.only(left: 10, right: 10),
@@ -107,7 +94,7 @@ class QrCodeView extends GetView<QrCodeController> {
                         height: 40,
                         child: ElevatedButton(
                             onPressed: () {
-                              //
+                              controller.generatePdf();
                             },
                             child: const Text("Print")),
                       ),
