@@ -37,12 +37,40 @@ class MapSetupController extends GetxController with WidgetsBindingObserver {
     location.changeSettings(interval: 300, accuracy: loc.LocationAccuracy.high);
     timer =
         Timer.periodic(const Duration(seconds: 2), (Timer t) => getLocation());
+    WidgetsBinding.instance.addObserver(this);
     super.onInit();
   }
 
   @override
   void onClose() {
     timer!.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        timer =
+        Timer.periodic(const Duration(seconds: 2), (Timer t) => getLocation());
+        break;
+      case AppLifecycleState.inactive:
+        stopGetBackground();
+        break;
+      case AppLifecycleState.paused:
+        stopGetBackground();
+        break;
+      case AppLifecycleState.detached:
+        stopGetBackground();
+        break;
+    }
+  }
+
+  stopGetBackground()async {
+    bool bgModeEnabled = await location.isBackgroundModeEnabled();
+    if (bgModeEnabled) {
+      timer!.cancel();
+    }
   }
 
   requestPermission() async {
